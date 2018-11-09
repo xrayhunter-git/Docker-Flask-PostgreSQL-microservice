@@ -1,0 +1,8 @@
+version: '2.1'
+
+services:
+  docker-flask-postgresql-microservice:
+    image: docker-flask-postgresql-microservice
+    build: .
+    ports:
+      - 3000:3000
