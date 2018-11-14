@@ -1,0 +1,37 @@
+omg: 1
+info:
+  version: 1.0.0
+  title: PostgreSQL Microservice
+  description: This runs a Query to a database.
+  contact:
+    name: N/A
+    url: N/A
+    email: N/A
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT  
+lifecycle:
+  startup:
+    command: ["python", "app.py"]
+actions:
+  sqlQuery:
+    help: Selects Data from a Table.
+    http:
+      port: 8000
+      method: get
+      path: /execute
+      content-type: application/json
+    arguments:
+      query:
+        type: string
+        in: requestBody
+        required: true
+      params:
+        help: |
+          The parameters for the SQL query, such as if the query was, 
+          SELECT * FROM my_table WHERE name=%(username)s
+
+          The data would look like, {"name" : "foo"}.
+        required: false
+        in: requestBody
+        type: map

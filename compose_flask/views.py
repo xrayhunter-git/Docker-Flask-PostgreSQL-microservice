@@ -4,7 +4,8 @@ import json as json
 
 @app.route('/', methods=['GET'])
 def index():
-    print(sql.get('users', ["name = 'testUser'"]))
-    jsonInfo = json.JSONEncoder().encode({})
+    query = sql.query(request.args.get('query', ''), request.args.get('params', ''))
+    print(query)
+    jsonInfo = json.JSONEncoder().encode(query)
 
-    return render_template('index.html', jsonInfo=jsonInfo)
+    return jsonInfo
