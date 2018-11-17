@@ -295,6 +295,8 @@ class SQL_Query:
     affectedRows = 0
     lastRowID = None
     arraySize = 1
+    errors = []
+    results = False
     def __init__(self, con, debug = False):
         self.con = con
         self.debug = debug
@@ -311,7 +313,8 @@ class SQL_Query:
             :param ENUM_FETCHAMOUNTTYPE=ENUM_FETCHAMOUNTTYPE.ALL: 
             :param fetchAmount=1: 
         """   
-        result = False
+        self.errors.clear()
+        results = False
         cur = None
 
         if self.debug:
@@ -319,11 +322,69 @@ class SQL_Query:
 
         if self.con is not None:
             try:
-
                 if ENUM_CursorType == ENUM_CursorType.REALDICTCURSOR:
-                    cur = self.con.cursor(cursor_factory=RealDictCursor)
-                else:
-                    cur = self.con.cursor()
+                    self.con.cursor_factory = RealDictCursor
+                    if self.debug:
+                        print("SQL Connection has been set to RealDictCursor! [The Connection would have to be terminated to be returned.]")
+
+                cur = self.con.cursor()
+                
+                cur.execute(sql, parameters)
+
+                hasNoFetch = False
+                for word in self.noFetch:
+                    if word in sql:
+                        hasNoFetch = True
+                        break
+
+                if not hasNoFetch:
+                    if ENUM_FETCHAMOUNTTYPE == ENUM_FETCHAMOUNTTYPE.ALL:
+                        results = cur.fetchall()     
+                    elif ENUM_FETCHAMOUNTTYPE == ENUM_FETCHAMOUNTTYPE.MANY:
+                        results = cur.fetchmany(fetchAmount)     
+                    elif ENUM_FETCHAMOUNTTYPE == ENUM_FETCHAMOUNTTYPE.ONE:
+                        results = cur.fetchone()
+                
+                self.affectedRows = cur.rowcount()
+                self.arraySize = cur.arraySize()
+                self.lastRowID = cur.lastrowid()
+            except (Exception, I_sql.DatabaseError) as error:
+                if self.debug:
+                    print("SQL Error Occured >> ")
+                    print(error)
+                self.errors.append(error)
+            finally:
+                if cur is not None:
+                    cur.close()
+        return self
+
+    def commit(self, sql, parameters, fields = [], table = "", ENUM_CursorType = ENUM_CursorType.DEFAULT, ENUM_FETCHAMOUNTTYPE = ENUM_FETCHAMOUNTTYPE.ALL, fetchAmount = 1):
+        """
+            Similiar to the Execute function, just adds pending transaction to the database.
+            :param self: 
+            :param sql:str: 
+            :param parameters:tuple: 
+            :param fields=[]: 
+            :param table="": 
+            :param ENUM_CursorType=ENUM_CursorType.DEFAULT: 
+            :param ENUM_FETCHAMOUNTTYPE=ENUM_FETCHAMOUNTTYPE.ALL: 
+            :param fetchAmount=1: 
+        """
+        self.errors.clear()
+        results = False
+        cur = None
+
+        if self.debug:
+            print(sql)
+
+        if self.con is not None:
+            try:
+                if ENUM_CursorType == ENUM_CursorType.REALDICTCURSOR:
+                    self.con.cursor_factory = RealDictCursor
+                    if self.debug:
+                        print("SQL Connection has been set to RealDictCursor! [The Connection would have to be terminated to be returned.]")
+
+                cur = self.con.cursor()
 
                 cur.execute(sql, parameters)
 
@@ -335,22 +396,32 @@ class SQL_Query:
 
                 if not hasNoFetch:
                     if ENUM_FETCHAMOUNTTYPE == ENUM_FETCHAMOUNTTYPE.ALL:
-                        result = cur.fetchall()     
+                        results = cur.fetchall()     
                     elif ENUM_FETCHAMOUNTTYPE == ENUM_FETCHAMOUNTTYPE.MANY:
-                        result = cur.fetchmany(fetchAmount)     
+                        results = cur.fetchmany(fetchAmount)     
                     elif ENUM_FETCHAMOUNTTYPE == ENUM_FETCHAMOUNTTYPE.ONE:
-                        result = cur.fetchone()
+                        results = cur.fetchone()
                 
+                self.con.commit()
+
                 self.affectedRows = cur.rowcount()
                 self.arraySize = cur.arraySize()
                 self.lastRowID = cur.lastrowid()
             except (Exception, I_sql.DatabaseError) as error:
-                print("SQL Error Occured >> ")
-                print(error)
+                if self.debug:
+                    print("SQL Error Occured >> ")
+                    print(error)
+                self.errors.append(error)
             finally:
                 if cur is not None:
                     cur.close()
-        return result
+        return self
+
+    def hasErrors(self):
+        return (self.errors.count > 0)
+
+    def getErrors(self):
+        return self.errors
 
     def getAffectedRowsCount(self):
         """
@@ -372,4 +443,7 @@ class SQL_Query:
             :param self: 
         """   
         return self.lastRowID
+
+    def getResults(self):
+        return self.results
     

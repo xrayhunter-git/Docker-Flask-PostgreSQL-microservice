@@ -6,7 +6,6 @@ services:
             - "5000:5000"
         volumes:
             - ./compose_flask:/code
-        command: npm install && npm start
         depends_on:
             - postgres
     postgres:

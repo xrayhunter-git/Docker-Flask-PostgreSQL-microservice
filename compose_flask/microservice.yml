@@ -1,0 +1,22 @@
+omg: 1
+lifecycle:
+  startup:
+    command: ["python", "app.py"]
+actions:
+  exec:
+    help: Selects Data from a Table.
+    http:
+      path: /execute
+      port: 8000
+      method: post
+      contentType: application/json
+    arguments:
+      query:
+        type: string
+        in: requestBody
+        required: true
+        help: The query
+      params:
+        required: false
+        in: requestBody
+        type: map

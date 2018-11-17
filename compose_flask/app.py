@@ -1,28 +1,36 @@
 #/usr/bin/python3
 
-from flask import Flask
+from flask import Flask, request, make_response
 from postgresql_connection_min import SQL, ENUM_CursorType, ENUM_FETCHAMOUNTTYPE
 
 app = Flask(__name__, static_folder='./assets')
 
 sql = SQL()
-sql.connect(host='127.0.0.1', user='postgres', password='postgres', dbName='google_codein') 
-sql.createSchema('microservices')
-sql.createTable('users', [
-    "id SERIAL",
-    "username TEXT",
-    "password TEXT",
-    "PRIMARY KEY(id)"
-])
-sql.insert('users', {
-    'name': 'testUser',
-    'password' : "myPassword123"
-})
 sql.setDebugMode(True)
 sql.setCursorType(ENUM_CursorType.REALDICTCURSOR)
 sql.setFetchType(ENUM_FETCHAMOUNTTYPE.ALL)
 
-from views import *
+@app.route('/execute', methods=['POST'])
+def execute():
+    json = request.get_json()
+    query = json['query']
+    args = json.get('params', {})
+    sql.connect(host='127.0.0.1', user='postgres', password='postgres', dbName='google_codein') 
+    q = sql.query(query, args, "", ENUM_CursorType.REALDICTCURSOR, ENUM_FETCHAMOUNTTYPE.ALL)
+
+    if q is None or q.getResults() is False or q.hasErrors():
+        resp = make_response('{"status":"fail"}')
+        resp.headers['Content-Type'] = 'application/json; charset=utf-8'
+        return resp
+    
+    resp = make_response(
+        json.dumps({
+        'status':'ok',
+        'results': q.getResults()
+        }
+    ))
+    resp.headers['Content-Type'] = 'application/json; charset=utf-8'
+    return resp
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    app.run(host="0.0.0.0", port=8000, debug=True)
