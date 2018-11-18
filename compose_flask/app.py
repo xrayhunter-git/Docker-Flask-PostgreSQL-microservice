@@ -14,7 +14,7 @@ sql.setFetchType(ENUM_FETCHAMOUNTTYPE.ALL)
 def execute():
     json = request.get_json()
     query = json['query']
-    args = json.get('params', {})
+    args = json.get('data', {})
     sql.connect(host='127.0.0.1', user='postgres', password='postgres', dbName='google_codein') 
     q = sql.query(query, args, "", ENUM_CursorType.REALDICTCURSOR, ENUM_FETCHAMOUNTTYPE.ALL)
 
@@ -25,10 +25,10 @@ def execute():
     
     resp = make_response(
         json.dumps({
-        'status':'ok',
-        'results': q.getResults()
-        }
-    ))
+            'status':'ok',
+            'results': q.getResults()
+        })
+    )
     resp.headers['Content-Type'] = 'application/json; charset=utf-8'
     return resp
 

@@ -16,7 +16,7 @@ actions:
         in: requestBody
         required: true
         help: The query
-      params:
+      data:
         required: false
         in: requestBody
         type: map
