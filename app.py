@@ -1,5 +1,9 @@
 #/usr/bin/python3
 
+import json
+import os
+import traceback
+
 from flask import Flask, request, make_response
 from postgresql_connection_min import SQL, ENUM_CursorType, ENUM_FETCHAMOUNTTYPE
 
@@ -15,7 +19,7 @@ def execute():
     json = request.get_json()
     query = json['query']
     args = json.get('data', {})
-    sql.connect(host='127.0.0.1', user='postgres', password='postgres', dbName='google_codein') 
+    sql.connect_dsn(os.environ.get('POSTGRES_DSN')) 
     q = sql.query(query, args, "", ENUM_CursorType.REALDICTCURSOR, ENUM_FETCHAMOUNTTYPE.ALL)
 
     if q is None or q.getResults() is False or q.hasErrors():

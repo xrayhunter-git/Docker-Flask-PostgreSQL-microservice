@@ -27,7 +27,28 @@ class SQL:
     FetchType = ENUM_FETCHAMOUNTTYPE.ALL
     def __init__(self):
         pass
-     
+    
+    def connect_dsn(self, dsn):
+        """
+        Connects to a PostgreSQL service through DSN.
+            :param self: 
+            :param dsn:str: 
+        """
+        if self.debug:
+            print("Connecting to PostgreSQL")
+
+        try:
+            self.con = I_sql.connect(dsn)
+
+            if self.debug:
+                print("Connected to PostgreSQL")
+
+            self.con.set_isolation_level(I_sql.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
+        except (Exception, I_sql.DatabaseError) as error:
+                print("SQL Connection Error Occured >> ")
+                print(error)
+        return self.con
+
     def connect(self, host, user, password, dbName = ""):
         """
         Connects to a PostgreSQL service.

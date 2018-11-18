@@ -14,9 +14,10 @@ actions:
       query:
         type: string
         in: requestBody
-        required: true
-        help: The query
       data:
-        required: false
-        in: requestBody
         type: map
+        in: requestBody
+environment:
+  POSTGRES_DSN:
+    help: The DNS to connect to the PostgreSQL service.
+    type: string
