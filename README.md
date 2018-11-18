@@ -1,10 +1,10 @@
 # Docker-Flask-PostgreSQL-microservice
 
 ## Requirements:
-PostgreSQL https://www.postgresql.org/download/
-Docker-Engine https://www.docker.com/get-started
-NPM https://www.npmjs.com/get-npm
-NPM-OMG Package https://www.npmjs.com/package/omg
+* PostgreSQL https://www.postgresql.org/download/
+* Docker-Engine https://www.docker.com/get-started
+* NPM https://www.npmjs.com/get-npm
+* NPM-OMG Package https://www.npmjs.com/package/omg
 
 ## Installing:
 1. Goto https://github.com/xrayhunter/Docker-Flask-PostgreSQL-microservice
