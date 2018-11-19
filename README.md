@@ -24,7 +24,7 @@ Thankfully OMG package handles all of that for us.
 Make sure your command terminal is located where the microservice folder is located.
 To move around, most operating systems use:
 ```
-cd /microservice
+cd microservice
 ```
 If that's not the command goto your operating system's documenatation and locate the terminal command to move work directory.
 Otherwords, you should be able to run:
